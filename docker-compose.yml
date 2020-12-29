@@ -1,0 +1,28 @@
+version: '3.7'
+
+networks:
+  lan:
+    external:
+      name: br1
+
+services:
+  postgres:
+    build:
+      context: ./
+    environment:
+      - POSTGRES_PASSWORD
+    volumes:
+      - ./data:/var/lib/postgresql/data:cached
+    networks:
+      lan:
+        ipv4_address: 192.168.48.247
+    hostname: psql
+    logging:
+      driver: json-file
+    healthcheck:
+      test: ["CMD", "/bin/bash", "-c", "/usr/bin/pg_isready -U postgres > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+

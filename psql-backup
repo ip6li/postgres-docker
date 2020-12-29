@@ -1,0 +1,50 @@
+#!/bin/bash
+
+TARGET_DIR="/home/cf/Development/Docker/postgres/backup"
+GPG_KEYID=""
+MAX_DAYS=30
+
+NOW=$(date +%Y%m%d.%H%M%S)
+
+TMPNAME="${TARGET_DIR}/pg_backup.bak.$$"
+
+PATH=/bin:/usr/bin
+export PATH
+
+if [ -z "$TARGET_DIR" ]; then
+  echo "###fatal: TARGET_DIR not set"
+  exit 1
+fi
+
+umask 077
+ID=$(docker ps --filter "name=postgres_postgres" --format "{{.ID}}")
+if [ -z "$ID" ]; then
+  echo "Postgres container not found"
+  exit 1
+fi
+if [ ! -z "$GPG_KEYID" ]; then
+  docker exec -i $ID pg_dumpall -U postgres | gpg --trust-model always --encrypt --recipient ${GPG_KEYID} > "${TMPNAME}"
+else
+  docker exec -i $ID pg_dumpall -U postgres | xz > "${TMPNAME}"
+fi
+if [ $? -eq 0 ]; then
+  if [ ! -z "$GPG_KEYID" ]; then
+    FINAL_PATH="${TARGET_DIR}/pg_backup.bak.${NOW}.gpg"
+  else
+    FINAL_PATH="${TARGET_DIR}/pg_backup.bak.${NOW}.xz"
+  fi
+  mv "${TMPNAME}" "${FINAL_PATH}"
+else
+  rm -f $TMPNAME
+  echo "backup failed"
+fi
+
+# clean up
+cd "$TARGET_DIR" || exit 1
+find . -mtime +${MAX_DAYS} -exec rm -f "{}" \;
+
+# If exists, call storage script
+if [ -x ./store-backup ]; then
+  ./store-backup "${FINAL_PATH}"
+fi
+
