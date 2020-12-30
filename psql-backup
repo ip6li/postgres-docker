@@ -17,7 +17,8 @@ if [ -z "$TARGET_DIR" ]; then
 fi
 
 umask 077
-ID=$(docker ps --filter "name=postgres_postgres" --format "{{.ID}}")
+PREFIX=$(basename $(pwd))
+ID=$(docker ps --filter "name=${PREFIX}_postgres" --format "{{.ID}}")
 if [ -z "$ID" ]; then
   echo "Postgres container not found"
   exit 1
