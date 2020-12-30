@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-TARGET_DIR="/home/cf/Development/Docker/postgres/backup"
+TARGET_DIR="$(pwd)/backup"
 GPG_KEYID=""
 MAX_DAYS=30
 
