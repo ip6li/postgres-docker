@@ -1,4 +1,4 @@
-from postgres
+from postgres:13
 
 run DEBIAN_FRONTEND=noninteractive apt-get update
 run DEBIAN_FRONTEND=noninteractive apt-get install -q -y apt
