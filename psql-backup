@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TARGET_DIR="$(pwd)/backup"
+TARGET_DIR="${1:-$(pwd)/backup}"
 GPG_KEYID=""
 MAX_DAYS=30
 
