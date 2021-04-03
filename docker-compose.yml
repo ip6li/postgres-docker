@@ -1,10 +1,5 @@
 version: '3.7'
 
-networks:
-  lan:
-    external:
-      name: br1
-
 services:
   postgres:
     build:
@@ -12,10 +7,9 @@ services:
     environment:
       - POSTGRES_PASSWORD
     volumes:
-      - ./data:/var/lib/postgresql/data:cached
-    networks:
-      lan:
-        ipv4_address: 192.168.48.247
+      - ./pg/data:/var/lib/postgresql/data:cached
+    ports:
+      - 192.168.48.1:5432:5432
     hostname: psql
     logging:
       driver: json-file
